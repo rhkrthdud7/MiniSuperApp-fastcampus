@@ -3,6 +3,8 @@ import ModernRIBs
 protocol FinanceHomeRouting: ViewableRouting {
     func attachSuperPayDasboard()
     func attachCardOnFileDashboard()
+    func attachAddPaymentMethod()
+    func detachAddPaymentMethod()
 }
 
 protocol FinanceHomePresentable: Presentable {
@@ -12,13 +14,17 @@ protocol FinanceHomePresentable: Presentable {
 protocol FinanceHomeListener: AnyObject {
 }
 
-final class FinanceHomeInteractor: PresentableInteractor<FinanceHomePresentable>, FinanceHomeInteractable, FinanceHomePresentableListener {
+final class FinanceHomeInteractor: PresentableInteractor<FinanceHomePresentable>, FinanceHomeInteractable, FinanceHomePresentableListener, AdaptivePresentationControllerDelegate {
     weak var router: FinanceHomeRouting?
     weak var listener: FinanceHomeListener?
 
+    let presentationDelegateProxy: AdaptivePresentationControllerDelegateProxy
+
     override init(presenter: FinanceHomePresentable) {
+        presentationDelegateProxy = AdaptivePresentationControllerDelegateProxy()
         super.init(presenter: presenter)
         presenter.listener = self
+        presentationDelegateProxy.delegate = self
     }
 
     override func didBecomeActive() {
@@ -31,5 +37,21 @@ final class FinanceHomeInteractor: PresentableInteractor<FinanceHomePresentable>
     override func willResignActive() {
         super.willResignActive()
         // TODO: Pause any business logic.
+    }
+
+    func presentationControllerDidDismiss() {
+        router?.detachAddPaymentMethod()
+    }
+
+    func cardOnFileDashboardDidTapAddPaymentMethod() {
+        router?.attachAddPaymentMethod()
+    }
+
+    func addPaymentMethodDidTapClose() {
+        router?.detachAddPaymentMethod()
+    }
+
+    func addPaymentMethodDidAddCard(paymentMethod: PaymentMethod) {
+        router?.detachAddPaymentMethod()
     }
 }
