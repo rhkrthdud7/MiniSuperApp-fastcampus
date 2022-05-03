@@ -23,7 +23,7 @@ protocol CardOnFileDashboardListener: AnyObject {
 }
 
 protocol CardOnFileDashboardInteractorDependency {
-    var cardOnFileRepository: CardOnfileRepository { get }
+    var cardOnFileRepository: CardOnFileRepository { get }
 }
 
 final class CardOnFileDashboardInteractor: PresentableInteractor<CardOnFileDashboardPresentable>, CardOnFileDashboardInteractable, CardOnFileDashboardPresentableListener {
