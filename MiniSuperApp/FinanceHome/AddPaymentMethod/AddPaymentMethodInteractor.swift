@@ -62,8 +62,8 @@ final class AddPaymentMethodInteractor: PresentableInteractor<AddPaymentMethodPr
         let info = AddPaymentMethodInfo(number: number, cvc: cvc, expiry: expiry)
         dependency.cardOnFileRepository.addCard(info: info).sink(
             receiveCompletion: { _ in },
-            receiveValue: { [weak self] _ in
-                self?.listener?.addPaymentMethodDidTapClose()
+            receiveValue: { [weak self] method in
+                self?.listener?.addPaymentMethodDidAddCard(paymentMethod: method)
             }
         ).store(in: &cancellables)
     }

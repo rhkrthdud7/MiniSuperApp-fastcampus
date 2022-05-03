@@ -1,23 +1,20 @@
 import ModernRIBs
 
 protocol FinanceHomeDependency: Dependency {
+    var cardOnFileRepository: CardOnFileRepository { get }
+    var superPayRepository: SuperPayRepository { get }
 }
 
 final class FinanceHomeComponent: Component<FinanceHomeDependency>, SuperPayDashboardDependency, CardOnFileDashboardDependency, AddPaymentMethodDependency, TopupDependency {
-    var cardOnFileRepository: CardOnFileRepository
-    var balance: ReadOnlyCurrentValuePublisher<Double> { balancePublisher }
+    var cardOnFileRepository: CardOnFileRepository { dependency.cardOnFileRepository }
+    var superPayRepository: SuperPayRepository { dependency.superPayRepository }
+    var balance: ReadOnlyCurrentValuePublisher<Double> { superPayRepository.balance }
     var topupBaseViewController: ViewControllable
-
-    private let balancePublisher: CurrentValuePublisher<Double>
 
     init(
         dependency: FinanceHomeDependency,
-        balance: CurrentValuePublisher<Double>,
-        cardOnFileRepository: CardOnFileRepository,
         topupBaseViewController: ViewControllable
     ) {
-        balancePublisher = balance
-        self.cardOnFileRepository = cardOnFileRepository
         self.topupBaseViewController = topupBaseViewController
         super.init(dependency: dependency)
     }
@@ -35,12 +32,9 @@ final class FinanceHomeBuilder: Builder<FinanceHomeDependency>, FinanceHomeBuild
     }
 
     func build(withListener listener: FinanceHomeListener) -> FinanceHomeRouting {
-        let balancePublisher = CurrentValuePublisher<Double>(10000)
         let viewController = FinanceHomeViewController()
         let component = FinanceHomeComponent(
             dependency: dependency,
-            balance: balancePublisher,
-            cardOnFileRepository: CardOnFileRepositoryImp(),
             topupBaseViewController: viewController
         )
         let interactor = FinanceHomeInteractor(presenter: viewController)
